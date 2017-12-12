@@ -1,39 +1,51 @@
 
 # Load the data 
-resultsDir<-"./data/msi_19/100_2.0_0.8_part"
-fullSyncDir<-"./data/msi_19/100_2.0_0.8_part/100_2.0_0.8_part/"
+resultsDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/100_2.0_0.8/"
+fullSyncDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/1_2.0_0.8/"
 isolated <- read.csv(paste0(resultsDir,"isolated.csv"), header = TRUE, sep = ",")
 static <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
-dynamic <- read.csv(paste0(resultsDir,"distributedDynamic.csv"), header = TRUE, sep = ",")
 full_sync <- read.csv(paste0(fullSyncDir,"distributedStatic.csv"), header = TRUE, sep = ",")
+dynamic <- read.csv(paste0(resultsDir,"distributedDynamic.csv"), header = TRUE, sep = ",")
 
 # Filter only records with modelSynced vaule is true
 static<-subset(static, static$modelSynced=="true")
 dynamic<-subset(dynamic, dynamic$modelSynced=="true")
 full_sync<-subset(full_sync, full_sync$modelSynced=="true")
 
-# Create list of the models
-models<-list(static,dynamic,isolated,full_sync)
+sampleStep<-1000
+
+isolatedSmapled <- isolated[seq(1, nrow(isolated), sampleStep),]
+staticSampled <- rbind(static[1:99,], static[seq(100, nrow(static), 100),])
+dynamicSmapled <-rbind(dynamic[1:99,], dynamic[seq(100, nrow(dynamic),sampleStep),])
+full_syncSampled <-rbind(full_sync[1:20,], full_sync[seq(20, nrow(full_sync), 100*sampleStep),])
+
+models<-list(staticSampled,dynamicSmapled,isolatedSmapled,full_syncSampled)
+
 modelNames<-c("static","dynamic","isolated","full-sync")
 numberOfModels<-length(models)
 colors <-c("gray10","skyblue2","tomato4","tan3")
-lineTypes <- c(1,1,1,1)
-lineWidths<- c(1,1,1,1)
-plotChars <- c(16,18,15,17)
+lineTypes <- c(1,3,4,6)
+lineWidths<- c(1.5,1.5,1.5,1.5)
+plotChars <- c(3,1,8,17)
 
-png(file="graphic.png",width=390,height=390,bg = "transparent")
+png(file="graphic.png",width=450,height=450,bg = "transparent",pointsize = 11)
 par()              # view current settings
 opar <- par()      # make a copy of current settings
-#par(mar=c(5,5,5,5))
+par(mar=c(5,5,0,5))
 getOption("scipen")
 opt <- options("scipen" = 20)
 getOption("scipen")
 
-xrange<-range(full_sync$numberOfInputEvents)
-yrange<-range(log10(full_sync$numberOfMessages))
-max(full_sync$numberOfMessages)
+
+summary(log10(dynamic$numberOfMessages))
+         
+
+xrange<-range(c(0,4773720))
+
+yrange<-range(c(1,max(log10(full_sync$numberOfMessages))))
+
 # Define the layout 
-plot(xrange,yrange,type="n",yaxt="n",xlab = list("# events",font=3,cex=1.5),ylab = list("# messages",font=3,cex=1.5))
+plot(xrange,yrange,type="n",yaxt="n",xlab = list("# events",font=2,cex=1.8),ylab = list("# messages",font=2,cex=1.8),font.axis=2,font=2,cex.axis=1.2)
 aty <- axTicks(2)
 labels <- sapply(aty,function(i)
   as.expression(bquote(10^ .(i)))
@@ -53,8 +65,9 @@ predictionThreshold<- models[[1]]$predictionThreshold[[1]]
 settings<- paste0("batch size =",batchS,", varinace threshold=",varinaceThreshold, ", and  prediction threshold=",predictionThreshold)
 
 #title(main=list("Preceision Scores",font=3,cex=2.5),sub= "" )
-legend(1400000, yrange[2] -1, modelNames,text.font=2, cex=.8, col=colors, lty=lineTypes,lwd=2.5)
+legend(2400000, yrange[2] -6, modelNames,text.font=2, cex=1.2, col=colors, lty=lineTypes,lwd=2.5,pch=plotChars)
 
 options(opt)
 par(opar)          # restore original settings
 dev.off()
+
