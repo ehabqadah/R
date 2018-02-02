@@ -1,46 +1,38 @@
 
 # Load the data 
-resultsDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/100_2.0_0.8/"
-fullSyncDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/1_2.0_0.8/"
+resultsDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/old/100_2.0_0.8_old/"
+fullSyncDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/old/1_2.0_0.8_old/"
+
 isolated <- read.csv(paste0(resultsDir,"isolated.csv"), header = TRUE, sep = ",")
 static <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 full_sync <- read.csv(paste0(fullSyncDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 dynamic <- read.csv(paste0(resultsDir,"distributedDynamic.csv"), header = TRUE, sep = ",")
 
-# Filter only records with modelSynced vaule is true
-static<-subset(static, static$modelSynced=="true")
-dynamic<-subset(dynamic, dynamic$modelSynced=="true")
-full_sync<-subset(full_sync, full_sync$modelSynced=="true")
 
-sampleStep<-1000
-
-isolatedSmapled <- isolated[seq(1, nrow(isolated), sampleStep),]
-staticSampled <- rbind(static[1:99,], static[seq(100, nrow(static), 100),])
-dynamicSmapled <-rbind(dynamic[1:99,], dynamic[seq(100, nrow(dynamic),sampleStep),])
-full_syncSampled <-rbind(full_sync[1:20,], full_sync[seq(20, nrow(full_sync), 100*sampleStep),])
+isolatedSmapled <-  rbind(isolated[1:3,], isolated[seq(4, nrow(isolated),1000),])
+staticSampled <-  rbind(static[1:2,], static[seq(4, nrow(static),1000),])
+dynamicSmapled <- rbind(dynamic[1:3,], dynamic[seq(4, nrow(dynamic),1000),])
+full_syncSampled <- rbind(full_sync[1:10,], full_sync[seq(10, nrow(full_sync),150000),])
 
 models<-list(staticSampled,dynamicSmapled,isolatedSmapled,full_syncSampled)
-
 modelNames<-c("static","dynamic","isolated","full-sync")
 numberOfModels<-length(models)
-colors <-c("gray10","skyblue2","tomato4","tan3")
+colors <- c("gray10","skyblue2","tomato4","tan3")
+
 lineTypes <- c(1,3,4,6)
 lineWidths<- c(1.5,1.5,1.5,1.5)
 plotChars <- c(3,1,8,17)
 
-png(file="graphic.png",width=450,height=450,bg = "transparent",pointsize = 11)
+png(file="messages_p1.png",bg = "transparent",width=450,height=450,pointsize = 11)
 par()              # view current settings
 opar <- par()      # make a copy of current settings
-par(mar=c(5,5,0,5))
+par(mar=c(5,5,2,4))
 getOption("scipen")
 opt <- options("scipen" = 20)
 getOption("scipen")
-
-
-summary(log10(dynamic$numberOfMessages))
          
 
-xrange<-range(c(0,4773720))
+xrange<-range(c(0,max(static$numberOfInputEvents)))
 
 yrange<-range(c(1,max(log10(full_sync$numberOfMessages))))
 

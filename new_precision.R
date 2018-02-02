@@ -5,7 +5,6 @@
 #fullSyncDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/old/1_2.0_0.8_old/"
 #resultsDir <- "/opt/datAcron/ref_experiments/msi_19/summary/ALL_SAME_TYPE_N/100_2.0_0.8_200/"
 #resultsDir <- "/opt/datAcron/ref_experiments/msi_new_exps/msi_19/summary/ALL_SAME_TYPE_N/100_2.0_0.8_200/"
-
 resultsDir<-"/home/ehabqadah/hdd2/Data/BDMA_paper/pattern1/ALL/100_2.0_0.8_200/"
 
 isolated <- read.csv(paste0(resultsDir,"isolated.csv"), header = TRUE, sep = ",")
@@ -13,6 +12,10 @@ static <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, se
 full_sync <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 dynamic <- read.csv(paste0(resultsDir,"distributedDynamic.csv"), header = TRUE, sep = ",")
 
+ isolated$averageSpread=isolated$averageSpread/isolated$numberOfPredictors
+ static$averageSpread=static$averageSpread/static$numberOfPredictors
+ dynamic$averageSpread=dynamic$averageSpread/dynamic$numberOfPredictors
+ full_sync$averageSpread=full_sync$averageSpread/full_sync$numberOfPredictors
 
 isolatedSmapled <-  rbind(isolated[1:3,], isolated[seq(4, nrow(isolated),10),])
 # staticSampled <-  rbind(static[1:3,], static[seq(4, nrow(static),1000),])
@@ -30,7 +33,7 @@ lineTypes <- c(1,3,4,6)
 lineWidths<- c(2.5,2.5,2.5,2.5)
 plotChars <- c(3,1,8,17)
 #bg = "transparent"
-png(file="precision_p1.png",width=850,height=850,pointsize = 11)
+png(file="new_precision.png",width=850,height=850,pointsize = 11)
 par()              # view current settings
 opar <- par()      # make a copy of current settings
 par(mar=c(5,5,2,4))
@@ -38,19 +41,24 @@ getOption("scipen")
 opt <- options("scipen" = 20)
 getOption("scipen")
 
-xrange<-range(c(0,max(static$numberOfInputEvents)))
-yrange<-range(c(0,.9))
+xrange<-range(c(0,600000))#max(static$numberOfInputEvents)))
+yrange<-range(c(0,1))
 
 # Define the layout 
 plot(xrange,yrange,type="n",xlab = list("# events",font=2,cex=1.8),ylab = list("precision",font=2,cex=1.8),font.axis=2,font=2,cex.axis=1.2)
 
+max(isolated$totalNumberOfPredictions)
+alph <- .5
+maxSpread <- 1/100.0
 
 for (i in 1:numberOfModels) {
-  
-  lines(models[[i]]$numberOfInputEvents, models[[i]]$averagePrecision , type="l", lwd=lineWidths[i],
+  spreadFactor <- 1- ( models[[i]]$averageSpread * maxSpread)
+  newScore <- alph  * models[[i]]$averagePrecision + (1- alph) * spreadFactor
+    
+  lines(models[[i]]$numberOfInputEvents, newScore , type="l", lwd=lineWidths[i],
         lty=lineTypes[i], col=colors[i], pch=plotChars[i])
   
- 
+  
 }
 #points(isolatedSmapled$numberOfInputEvents,isolatedSmapled$averagePrecision, bg='tomato2', pch=8, cex=1.5, lwd=1.5)
 # Add the legend for the plot 

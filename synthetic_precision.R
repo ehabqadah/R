@@ -1,40 +1,51 @@
 
+
 # Load the data 
-resultsDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/100_2.0_0.8_200/"
-fullSyncDir<-"/opt/datAcron/experiments/msi_19/summary/ALL_SAME_TYPE/100_2.0_0.8_200/"
+
+resultsDir <- "/opt/datAcron/ref_experiments/msi_new_exps/adc/summary/SyntheticEvents/20_1.0E-4_0.5_10/"
+
 isolated <- read.csv(paste0(resultsDir,"isolated.csv"), header = TRUE, sep = ",")
 static <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
+full_sync <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 dynamic <- read.csv(paste0(resultsDir,"distributedDynamic.csv"), header = TRUE, sep = ",")
-full_sync <- read.csv(paste0(fullSyncDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 
-# Create list of the models
-models<-list(static,dynamic,isolated,full_sync)
+
+
+# models<-list(staticSampled,dynamicSmapled,isolatedSmapled,full_syncSampled)
+models<-list(static,dynamic,isolated)
 modelNames<-c("static","dynamic","isolated","full-sync")
 numberOfModels<-length(models)
-colors <- rainbow(numberOfModels)
-lineTypes <- c(1,3,4,6)
-lineWidths<- c(1.5,1.5,1.5,1.5)
-plotChars <- c(16,18,15,17)
+colors <- c("gray10","skyblue2","tomato4","tan3")
 
-png(file="graphic.png",width=390,height=390,bg = "transparent")
+lineTypes <- c(1,3,4,6)
+lineWidths<- c(2.5,2.5,2.5,2.5)
+plotChars <- c(3,1,8,17)
+#bg = "transparent"
+png(file="precision_synthetic.png",width=850,height=850,pointsize = 11)
 par()              # view current settings
 opar <- par()      # make a copy of current settings
-#par(mar=c(5,5,5,5))
+par(mar=c(5,5,2,4))
 getOption("scipen")
 opt <- options("scipen" = 20)
 getOption("scipen")
 
-xxrange<-range(full_sync$numberOfInputEvents)
-yrange<-range(c(0,1))
+xrange<-range(c(0,(static$numberOfInputEvents)))
+yrange<-range(c(0,.8))
 
 # Define the layout 
-plot(xrange,yrange,type="n",xlab = list("# predictions",font=3,cex=1.5),ylab = list("commutative error",font=3,cex=1.5))
+plot(xrange,yrange,type="n",xlab = list("# events",font=2,cex=1.8),ylab = list("precision",font=2,cex=1.8),font.axis=2,font=2,cex.axis=1.2)
 
+
+lph <- .5
+maxSpread <- 1/10
 
 for (i in 1:numberOfModels) {
+  spreadFactor <- 1- ( models[[i]]$averageSpread * maxSpread)
+  newScore <- alph  * models[[i]]$averagePrecision + (1- alph) * spreadFactor
   
-  lines(models[[i]]$numberOfInputEvents, models[[i]]$recall , type="l", lwd=lineWidths[i],
+  lines(models[[i]]$numberOfInputEvents, newScore , type="l", lwd=lineWidths[i],
         lty=lineTypes[i], col=colors[i], pch=plotChars[i])
+  
   print(modelNames[i])
   print(summary(models[[i]]$recall))
 }
@@ -46,9 +57,10 @@ predictionThreshold<- models[[1]]$predictionThreshold[[1]]
 settings<- paste0("batch size =",batchS,", varinace threshold=",varinaceThreshold, ", and  prediction threshold=",predictionThreshold)
 settings
 #title(main=list("Preceision Scores",font=3,cex=2.5),sub= "" )
-legend(140000, yrange[2] , modelNames,text.font=2, cex=.8, col=colors, lty=lineTypes,lwd=2.5)
+legend(2000000, yrange[2] , c("static","dynamic","isolated","full-sync"),text.font=2, cex=1.2, col=colors, lty=lineTypes,lwd=2.5,pch=plotChars)
 
 options(opt)
 
 par(opar)          # restore original settings
 dev.off()
+
