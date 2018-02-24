@@ -2,8 +2,8 @@
 
 # Load the data 
 
-resultsDir <- "/opt/datAcron/ref_experiments/msi_new_exps/adc/summary/SyntheticEvents/20_1.0E-4_0.5_10/"
-
+#resultsDir <- "/opt/datAcron/ref_experiments/msi_new_exps/adc/summary/SyntheticEvents/20_1.0E-4_0.5_10/"
+resultsDir <- "/opt/datAcron/ref_experiments/msi_new_exps_tmp/synthetic/summary/SyntheticEvents/20_0.001_0.5_10/"
 isolated <- read.csv(paste0(resultsDir,"isolated.csv"), header = TRUE, sep = ",")
 static <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
 full_sync <- read.csv(paste0(resultsDir,"distributedStatic.csv"), header = TRUE, sep = ",")
@@ -41,8 +41,6 @@ for (i in 1:numberOfModels) {
   lines(models[[i]]$numberOfInputEvents, models[[i]]$probEstimationError , type="l", lwd=lineWidths[i],
         lty=lineTypes[i], col=colors[i], pch=plotChars[i])
   
-  print(modelNames[i])
-  print(summary(models[[i]]$recall))
 }
 
 # Add the legend for the plot 

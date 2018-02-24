@@ -14,10 +14,11 @@ numberOfModels<-length(models)
 colors <- colors <-c("skyblue2","tomato4")
 
 lineTypes <- c(3,4)
-lineWidths<- c(1.5,1.5)
+lineWidths<- c(4.2,4.2,4.2,4.2)
 plotChars <- c(1,8)
+#bg = "transparent"
+png(file="precision_p2.png",bg = "transparent",width=750,height=750,pointsize = 14)
 
-png(file="precision_p2.png",width=450,height=420,bg = "transparent",pointsize = 13)
 par()              # view current settings
 opar <- par()      # make a copy of current settings
 par(mar=c(5,5,2,4))
@@ -30,7 +31,7 @@ xrange<-range(c(0,100000))
 yrange<-range(c(0,1))
 
 # Define the layout 
-plot(xrange,yrange,type="n",xlab = list("# events",font=2,cex=1.8),ylab = list("precision",font=2,cex=1.8),font.axis=2,font=2,cex.axis=1.2)
+plot(xrange,yrange,type="n",xlab = list("# events",font=2,cex=2.3),ylab = list("precision",font=2,cex=2.3),font.axis=2,font=2,cex.axis=1.2)
 
 
 for (i in 1:numberOfModels) {
@@ -50,7 +51,7 @@ maxSpread<-strsplit(resultsDir, "_")[[1]]
 maxSpread<-maxSpread[[length(maxSpread)]]
 settings<- paste0("b = ",batchS,", varinace = ",varinaceThreshold, ",  p_c=",predictionThreshold, " max_sp = ",maxSpread)
 #title(main=list("Preceision Scores",font=3,cex=1.5),sub= settings )
-legend(55000, yrange[2] , c("dynamic","isolated"),text.font=2, cex=1.2, col=colors, lty=lineTypes,lwd=2.5,pch=plotChars)
+legend(55000, yrange[2] , c("dynamic","isolated"),text.font=2, cex=1.8, col=colors, lty=lineTypes,lwd=3.2,pch=plotChars)
 
 options(opt)
 
